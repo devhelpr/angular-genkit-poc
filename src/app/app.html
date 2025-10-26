@@ -4,27 +4,27 @@
   <input type="text" id="theme" [(ngModel)]="menuInput" />
   <br />
   <br />
-  <button (click)="generateMenuItem()" [disabled]="menuResource.isLoading() || isStreaming()">
+  <button (click)="generateMenuItem()" [disabled]="isGenerating() || isStreaming()">
     Generate
   </button>
-  <button (click)="streamMenuItem()" [disabled]="menuResource.isLoading() || isStreaming()">
+  <button (click)="streamMenuItem()" [disabled]="isGenerating() || isStreaming()">
     Stream Generation
   </button>
   <br />
 
   @if (isStreaming()) {
   <div>Streaming...</div>
-  } @else if (menuResource.isLoading()) {
+  } @else if (isGenerating()) {
   <div>Loading...</div>
-  } @if (streamedText()) {
+  } @if (streamedText() && !isGenerating()) {
   <div>
     <h4>Streaming Output:</h4>
     <pre>{{ streamedText() }}</pre>
   </div>
-  } @else if (menuResource.value() && menuResource.value().menuItem) {
+  } @else if (generatedMenuItem() && !streamedText()) {
   <div>
     <h4>Generated Menu Item:</h4>
-    <pre>{{ menuResource.value().menuItem }}</pre>
+    <pre>{{ generatedMenuItem() }}</pre>
   </div>
   }
 </main>

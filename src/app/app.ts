@@ -1,6 +1,5 @@
-import { Component, resource, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { runFlow, streamFlow } from 'genkit/beta/client';
 
 @Component({
   selector: 'app-root',
@@ -9,38 +8,47 @@ import { runFlow, streamFlow } from 'genkit/beta/client';
 })
 export class App {
   menuInput = '';
-  theme = signal('');
+  generatedMenuItem = signal('');
   streamedText = signal('');
+  isGenerating = signal(false);
   isStreaming = signal(false);
 
-  menuResource = resource({
-    loader: () => {
-      const currentTheme = this.theme();
-      // Don't make request if theme is empty
-      if (!currentTheme || currentTheme.trim() === '') {
-        return Promise.resolve({ menuItem: '' });
-      }
-
-      return runFlow({
-        url: 'http://localhost:4200/api/menuSuggestion',
-        input: { theme: currentTheme },
-      });
-    },
-  });
-
-  generateMenuItem() {
+  async generateMenuItem() {
     const theme = this.menuInput?.trim();
     if (!theme) {
       console.log('No theme provided');
       return;
     }
 
-    // Clear previous streaming results
+    // Clear previous results
     this.streamedText.set('');
-    this.isStreaming.set(false);
+    this.generatedMenuItem.set('');
+    this.isGenerating.set(true);
 
-    // Set theme which will trigger the resource loader
-    this.theme.set(theme);
+    try {
+      console.log('Generating menu item for theme:', theme);
+
+      const response = await fetch('http://localhost:4200/api/menuSuggestion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ theme }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Generated result:', result);
+      this.generatedMenuItem.set(result.menuItem || '');
+    } catch (error) {
+      console.error('Error generating menu item:', error);
+      this.generatedMenuItem.set('Error occurred. Please try again.');
+    } finally {
+      this.isGenerating.set(false);
+    }
   }
 
   async streamMenuItem() {
@@ -52,9 +60,8 @@ export class App {
 
     // Clear previous results and set loading state
     this.streamedText.set('');
+    this.generatedMenuItem.set('');
     this.isStreaming.set(true);
-    // Clear the regular resource to avoid conflicts
-    this.theme.set('');
 
     try {
       // Use fetch API for streaming instead of streamFlow
