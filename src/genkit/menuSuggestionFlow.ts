@@ -33,3 +33,13 @@ export const menuSuggestionFlow = ai.defineFlow(
     return { menuItem: response.text };
   }
 );
+
+// Streaming version of the menu suggestion flow
+export async function menuSuggestionStreamFlow(theme: string) {
+  const stream = await ai.generateStream({
+    model: googleAI.model('gemini-2.5-flash'),
+    prompt: `Invent a menu item for a ${theme} themed restaurant.`,
+  });
+
+  return stream;
+}

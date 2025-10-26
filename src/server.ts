@@ -8,7 +8,7 @@ import express from 'express';
 import { join } from 'node:path';
 import { expressHandler } from '@genkit-ai/express';
 import './config/environment'; // Load environment variables
-import { menuSuggestionFlow } from './genkit/menuSuggestionFlow';
+import { menuSuggestionFlow, menuSuggestionStreamFlow } from './genkit/menuSuggestionFlow';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -77,7 +77,7 @@ app.post('/api/menuSuggestion', async (req, res) => {
   }
 });
 
-// Streaming handler for the menu suggestion flow
+// Streaming handler for the menu suggestion flow using ai.generateStream
 app.post('/api/menuSuggestion/stream', async (req, res) => {
   try {
     console.log('Received streaming request body:', req.body);
@@ -92,26 +92,27 @@ app.post('/api/menuSuggestion/stream', async (req, res) => {
       'Access-Control-Allow-Headers': 'Content-Type',
     });
 
-    // For now, we'll simulate streaming by sending the result in chunks
-    const result = await menuSuggestionFlow({ theme });
-    const text = result.menuItem;
+    // Use the proper streaming API
+    const stream = await menuSuggestionStreamFlow(theme);
 
-    // Split the text into chunks and send them with delays to simulate streaming
-    const words = text.split(' ');
-    for (let i = 0; i < words.length; i++) {
-      const chunk = i === 0 ? words[i] : ' ' + words[i];
-      res.write(chunk);
-      // Small delay to simulate streaming
-      await new Promise((resolve) => setTimeout(resolve, 50));
+    // Stream the response chunks as they arrive
+    for await (const chunk of stream.stream) {
+      if (chunk.text) {
+        res.write(chunk.text);
+      }
     }
 
     res.end();
   } catch (error) {
     console.error('Error in streaming menu suggestion:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } else {
+      res.end();
+    }
   }
 });
 
