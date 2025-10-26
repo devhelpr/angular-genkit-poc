@@ -1,89 +1,267 @@
-# AngularGenkit
+# Angular Genkit POC
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2 and integrates with [Google AI Genkit](https://firebase.google.com/docs/genkit) for AI-powered features.
+A proof-of-concept application demonstrating the integration of [Angular](https://angular.dev) with [Google AI Genkit](https://firebase.google.com/docs/genkit) for AI-powered menu suggestion generation. This project showcases both traditional API calls and streaming responses using Google's Gemini AI and local Ollama models, along with a dynamic theming system.
 
-## Setup
+## 🎯 Features
 
-### Prerequisites
+- **AI-Powered Menu Suggestions**: Generate creative restaurant menu items based on themes
+- **Dual AI Model Support**: 
+  - Google Gemini 2.5 Flash (cloud-based)
+  - Ollama Granite4 Tiny-H (local model)
+- **Streaming Responses**: Real-time text generation with streaming API support
+- **Dynamic Theming**: Five beautiful theme options with persistent selection
+- **Server-Side Rendering**: Built with Angular SSR for optimal performance
+- **Type-Safe API**: Zod schema validation for robust data handling
 
-1. **Google AI API Key**: Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+## 🏗️ Application Architecture
 
-### Environment Configuration
-
-1. Copy the `.env` file and update it with your API key:
-   ```bash
-   cp .env .env.local
-   ```
-
-2. Edit `.env.local` and replace `your_api_key_here` with your actual Google AI API key:
-   ```
-   GOOGLE_GENAI_API_KEY=your_actual_api_key_here
-   GENKIT_ENV=dev
-   ```
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
+```mermaid
+graph TB
+    subgraph "Frontend (Angular)"
+        A[App Component] --> B[Menu Suggestion Service]
+        A --> C[Theme Service]
+        A --> D[Theme Modal Component]
+        C --> D
+    end
+    
+    subgraph "Backend (Express + Angular SSR)"
+        E[Express Server] --> F[API Routes]
+        F --> G[/api/menuSuggestion]
+        F --> H[/api/menuSuggestion/ollama]
+        F --> I[/api/menuSuggestion/stream]
+        F --> J[/api/menuSuggestion/stream/ollama]
+    end
+    
+    subgraph "AI Layer (Genkit)"
+        K[menuSuggestionFlow] --> L[Google Gemini 2.5 Flash]
+        M[menuSuggestionFlowOllama] --> N[Ollama Granite4 Tiny-H]
+        O[menuSuggestionStreamFlow] --> L
+        P[menuSuggestionStreamFlowOllama] --> N
+    end
+    
+    subgraph "User Interface"
+        Q[User Input] --> A
+        A --> R[Generated Results]
+        A --> S[Streamed Text]
+        C --> T[Theme Persistence<br/>localStorage]
+    end
+    
+    B -->|HTTP POST| G
+    B -->|HTTP POST| H
+    B -->|HTTP POST<br/>Streaming| I
+    B -->|HTTP POST<br/>Streaming| J
+    
+    G --> K
+    H --> M
+    I --> O
+    J --> P
+    
+    K --> |Response| B
+    M --> |Response| B
+    O --> |Chunks| B
+    P --> |Chunks| B
+    
+    style A fill:#42a5f5
+    style B fill:#66bb6a
+    style C fill:#66bb6a
+    style E fill:#ffa726
+    style K fill:#ab47bc
+    style M fill:#ab47bc
+    style O fill:#ab47bc
+    style P fill:#ab47bc
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔄 Application Flow
 
-## API Endpoints
+1. **User Input**: User enters a restaurant theme (e.g., "Italian", "Japanese")
+2. **Model Selection**: User selects between Gemini or Ollama models
+3. **Generation Mode**: User chooses between standard or streaming generation
+4. **API Request**: Frontend sends HTTP POST request to appropriate endpoint
+5. **AI Processing**: Genkit flow processes request using selected AI model
+6. **Response Handling**: 
+   - Standard: Complete response returned at once
+   - Streaming: Text chunks returned progressively
+7. **UI Update**: Results displayed to user in real-time
 
-The application provides the following API endpoints:
+## 📋 Prerequisites
 
-- `POST /api/menuSuggestion` - Generate menu suggestions based on a theme
-  ```json
-  {
-    "theme": "Italian"
-  }
-  ```
+### Required
+- **Node.js** (v18 or higher recommended)
+- **npm** or **yarn**
+- **Google AI API Key**: Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
-## Code scaffolding
+### Optional
+- **Ollama** (for local model support): [Install Ollama](https://ollama.ai)
+  - After installation, pull the Granite4 model: `ollama pull granite4:tiny-h`
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🚀 Setup Instructions
 
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/devhelpr/angular-genkit-poc.git
+cd angular-genkit-poc
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```bash
+cp .env .env.local
+```
+
+Edit `.env.local` and add your Google AI API key:
+
+```env
+GOOGLE_GENAI_API_KEY=your_actual_api_key_here
+GENKIT_ENV=dev
+```
+
+### 4. Start the Development Server
+
+```bash
+npm start
+```
+
+The application will be available at `http://localhost:4200/`
+
+## 🎨 Available Themes
+
+The application includes five pre-designed themes:
+
+1. **Dark Teal** - Modern dark theme with teal accents
+2. **Light Teal** - Clean light theme with teal accents
+3. **Modern Orange** - Vibrant dark theme with orange accents
+4. **Modern Purple** - Elegant dark theme with purple accents
+5. **Modern Red** - Bold dark theme with red accents
+
+Themes are persisted in localStorage and automatically applied on page load.
+
+## 🔌 API Endpoints
+
+### Non-Streaming Endpoints
+
+#### Generate with Gemini
+```http
+POST /api/menuSuggestion
+Content-Type: application/json
+
+{
+  "theme": "Italian"
+}
+```
+
+#### Generate with Ollama
+```http
+POST /api/menuSuggestion/ollama
+Content-Type: application/json
+
+{
+  "theme": "Japanese"
+}
+```
+
+### Streaming Endpoints
+
+#### Stream with Gemini
+```http
+POST /api/menuSuggestion/stream
+Content-Type: application/json
+
+{
+  "theme": "Mexican"
+}
+```
+
+#### Stream with Ollama
+```http
+POST /api/menuSuggestion/stream/ollama
+Content-Type: application/json
+
+{
+  "theme": "French"
+}
+```
+
+## 📁 Project Structure
+
+```
+angular-genkit/
+├── src/
+│   ├── app/
+│   │   ├── app.ts                      # Main app component
+│   │   ├── menu-suggestion.service.ts  # Menu suggestion API service
+│   │   ├── theme.service.ts            # Theme management service
+│   │   └── theme-modal.component.ts    # Theme selector modal
+│   ├── genkit/
+│   │   └── menuSuggestionFlow.ts       # Genkit AI flows
+│   ├── config/
+│   │   └── environment.ts              # Environment configuration
+│   ├── styles/
+│   │   └── themes/                     # SCSS theme files
+│   └── server.ts                       # Express server with API routes
+├── package.json
+└── README.md
+```
+
+## 🛠️ Development
+
+### Code Scaffolding
+
+Generate a new component:
 ```bash
 ng generate component component-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+View all available schematics:
 ```bash
 ng generate --help
 ```
 
-## Building
-
-To build the project run:
+### Building for Production
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Running Tests
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## 🔧 Technologies Used
 
-For end-to-end (e2e) testing, run:
+- **Frontend**: Angular 20.3.0 with SSR
+- **AI Framework**: Google AI Genkit 1.21.0
+- **AI Models**: 
+  - Google Gemini 2.5 Flash
+  - Ollama Granite4 Tiny-H
+- **Backend**: Express.js
+- **Styling**: SCSS with custom theming
+- **Validation**: Zod schemas
+- **Type Safety**: TypeScript 5.9
 
-```bash
-ng e2e
-```
+## 🤝 Contributing
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Additional Resources
+## 📄 License
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is provided as-is for educational and demonstration purposes.
+
+## 🔗 Additional Resources
+
+- [Angular Documentation](https://angular.dev)
+- [Google AI Genkit Documentation](https://firebase.google.com/docs/genkit)
+- [Ollama Documentation](https://ollama.ai)
+- [Google AI Studio](https://aistudio.google.com/app/apikey)
