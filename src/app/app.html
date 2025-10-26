@@ -50,7 +50,7 @@
   } @if (streamedText() && !isGenerating()) {
   <div class="result-container">
     <h4>Streaming Output</h4>
-    <div class="result-content streaming-content">{{ streamedText() }}</div>
+    <div class="result-content" [class.streaming-content]="isStreaming()">{{ streamedText() }}</div>
   </div>
   } @else if (generatedMenuItem() && !streamedText()) {
   <div class="result-container">
