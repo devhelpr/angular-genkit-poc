@@ -1,0 +1,46 @@
+/* Dark Teal Theme */
+.theme-dark-teal {
+  /* Color Tokens */
+  --color-primary: #14b8a6;
+  --color-primary-dark: #0d9488;
+  --color-primary-light: #5eead4;
+  
+  /* Opacity-based Primary Accents */
+  --color-primary-alpha-05: rgba(20, 184, 166, 0.05);
+  --color-primary-alpha-08: rgba(20, 184, 166, 0.08);
+  --color-primary-alpha-10: rgba(20, 184, 166, 0.1);
+  --color-primary-alpha-15: rgba(20, 184, 166, 0.15);
+  --color-primary-alpha-20: rgba(20, 184, 166, 0.2);
+  --color-primary-alpha-30: rgba(20, 184, 166, 0.3);
+  --color-primary-alpha-40: rgba(20, 184, 166, 0.4);
+  --color-primary-alpha-50: rgba(20, 184, 166, 0.5);
+  --color-primary-alpha-60: rgba(20, 184, 166, 0.6);
+  --color-primary-alpha-90: rgba(20, 184, 166, 0.9);
+
+  /* Background Colors */
+  --color-bg-primary: #000000;
+  --color-bg-card: rgba(15, 15, 15, 0.95);
+  --color-bg-input: var(--color-primary-alpha-05);
+  --color-bg-input-hover: var(--color-primary-alpha-08);
+  --color-bg-input-focus: var(--color-primary-alpha-10);
+
+  /* Text Colors */
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: rgba(229, 231, 235, 0.7);
+  --color-text-placeholder: rgba(229, 231, 235, 0.4);
+  --color-text-label: var(--color-primary-alpha-90);
+
+  /* Border Colors */
+  --color-border-default: var(--color-primary-alpha-20);
+  --color-border-hover: var(--color-primary-alpha-30);
+  --color-border-focus: var(--color-primary);
+  --color-border-card: var(--color-primary-alpha-20);
+
+  /* Shadow Tokens */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 15px var(--color-primary-alpha-20);
+  --shadow-lg: 0 6px 25px var(--color-primary-alpha-40);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 100px var(--color-primary-alpha-15);
+  --shadow-text: 0 0 30px var(--color-primary-alpha-50);
+}

@@ -1,10 +1,11 @@
 import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuSuggestionService } from './menu-suggestion.service';
+import { ThemeModalComponent } from './theme-modal.component';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, ThemeModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
