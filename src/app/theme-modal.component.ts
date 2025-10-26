@@ -117,11 +117,17 @@ import { ThemeService, Theme } from './theme.service';
       }
 
       .theme-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
         border: none;
         border-radius: var(--radius-xl);
         padding: 0;
         max-width: 800px;
         width: 90vw;
+        max-height: 90vh;
         background: var(--color-bg-card);
         backdrop-filter: blur(20px);
         box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px var(--color-primary-alpha-20);
