@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-root',
   imports: [FormsModule],
   templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class App {
   menuInput = '';

@@ -1,40 +1,61 @@
 <main>
-  <h3>Generate a custom menu item</h3>
+  <h3>🍽️ AI Menu Generator</h3>
 
-  <div>
-    <label for="model">Select AI Model: </label>
+  <div class="model-selector">
+    <label for="model">AI Model</label>
     <select id="model" [(ngModel)]="selectedModel">
-      <option value="gemini">Google Gemini 2.5 Flash</option>
-      <option value="ollama">Ollama Granite4-Tiny-H</option>
+      <option value="gemini">🤖 Google Gemini 2.5 Flash</option>
+      <option value="ollama">🦙 Ollama Granite4-Tiny-H</option>
     </select>
   </div>
-  <br />
 
-  <label for="theme">Suggest a menu item for a restaurant with this theme: </label>
-  <input type="text" id="theme" [(ngModel)]="menuInput" />
-  <br />
-  <br />
-  <button (click)="generateMenuItem()" [disabled]="isGenerating() || isStreaming()">
-    Generate
-  </button>
-  <button (click)="streamMenuItem()" [disabled]="isGenerating() || isStreaming()">
-    Stream Generation
-  </button>
-  <br />
+  <div class="theme-input">
+    <label for="theme">Restaurant Theme</label>
+    <input
+      type="text"
+      id="theme"
+      [(ngModel)]="menuInput"
+      placeholder="e.g., Italian, Japanese, Fusion..."
+    />
+  </div>
 
-  @if (isStreaming()) {
-  <div>Streaming...</div>
-  } @else if (isGenerating()) {
-  <div>Loading...</div>
+  <div class="button-group">
+    <button (click)="generateMenuItem()" [disabled]="isGenerating() || isStreaming()">
+      @if (isGenerating()) {
+      <span>Generating...</span>
+      } @else {
+      <span>✨ Generate</span>
+      }
+    </button>
+    <button (click)="streamMenuItem()" [disabled]="isGenerating() || isStreaming()">
+      @if (isStreaming()) {
+      <span>Streaming...</span>
+      } @else {
+      <span>⚡ Stream Generation</span>
+      }
+    </button>
+  </div>
+
+  @if (isStreaming() || isGenerating()) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <div class="loading-text">
+      @if (isStreaming()) {
+      <span>Streaming your menu item...</span>
+      } @else {
+      <span>Creating magic...</span>
+      }
+    </div>
+  </div>
   } @if (streamedText() && !isGenerating()) {
-  <div>
-    <h4>Streaming Output:</h4>
-    <pre>{{ streamedText() }}</pre>
+  <div class="result-container">
+    <h4>Streaming Output</h4>
+    <div class="result-content streaming-content">{{ streamedText() }}</div>
   </div>
   } @else if (generatedMenuItem() && !streamedText()) {
-  <div>
-    <h4>Generated Menu Item:</h4>
-    <pre>{{ generatedMenuItem() }}</pre>
+  <div class="result-container">
+    <h4>Generated Menu Item</h4>
+    <div class="result-content">{{ generatedMenuItem() }}</div>
   </div>
   }
 </main>
