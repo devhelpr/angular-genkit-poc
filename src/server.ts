@@ -8,7 +8,12 @@ import express from 'express';
 import { join } from 'node:path';
 import { expressHandler } from '@genkit-ai/express';
 import './config/environment'; // Load environment variables
-import { menuSuggestionFlow, menuSuggestionStreamFlow } from './genkit/menuSuggestionFlow';
+import {
+  menuSuggestionFlow,
+  menuSuggestionStreamFlow,
+  menuSuggestionFlowOllama,
+  menuSuggestionStreamFlowOllama,
+} from './genkit/menuSuggestionFlow';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -77,6 +82,22 @@ app.post('/api/menuSuggestion', async (req, res) => {
   }
 });
 
+// Ollama handler for menu suggestion (non-streaming)
+app.post('/api/menuSuggestion/ollama', async (req, res) => {
+  try {
+    console.log('Received Ollama request body:', req.body);
+    const theme = extractTheme(req.body);
+    const result = await menuSuggestionFlowOllama({ theme });
+    return res.json(result);
+  } catch (error) {
+    console.error('Error in Ollama menu suggestion:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // Streaming handler for the menu suggestion flow using ai.generateStream
 app.post('/api/menuSuggestion/stream', async (req, res) => {
   try {
@@ -105,6 +126,45 @@ app.post('/api/menuSuggestion/stream', async (req, res) => {
     res.end();
   } catch (error) {
     console.error('Error in streaming menu suggestion:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } else {
+      res.end();
+    }
+  }
+});
+
+// Ollama streaming handler
+app.post('/api/menuSuggestion/stream/ollama', async (req, res) => {
+  try {
+    console.log('Received Ollama streaming request body:', req.body);
+    const theme = extractTheme(req.body);
+
+    // Set headers for streaming
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    });
+
+    // Use the Ollama streaming API
+    const stream = await menuSuggestionStreamFlowOllama(theme);
+
+    // Stream the response chunks as they arrive
+    for await (const chunk of stream.stream) {
+      if (chunk.text) {
+        res.write(chunk.text);
+      }
+    }
+
+    res.end();
+  } catch (error) {
+    console.error('Error in Ollama streaming menu suggestion:', error);
     if (!res.headersSent) {
       res.status(500).json({
         error: 'Internal server error',

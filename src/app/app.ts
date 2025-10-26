@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class App {
   menuInput = '';
+  selectedModel = 'gemini'; // 'gemini' or 'ollama'
   generatedMenuItem = signal('');
   streamedText = signal('');
   isGenerating = signal(false);
@@ -26,9 +27,14 @@ export class App {
     this.isGenerating.set(true);
 
     try {
-      console.log('Generating menu item for theme:', theme);
+      console.log('Generating menu item for theme:', theme, 'with model:', this.selectedModel);
 
-      const response = await fetch('http://localhost:4200/api/menuSuggestion', {
+      const endpoint =
+        this.selectedModel === 'ollama'
+          ? 'http://localhost:4200/api/menuSuggestion/ollama'
+          : 'http://localhost:4200/api/menuSuggestion';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,8 +70,13 @@ export class App {
     this.isStreaming.set(true);
 
     try {
+      const endpoint =
+        this.selectedModel === 'ollama'
+          ? 'http://localhost:4200/api/menuSuggestion/stream/ollama'
+          : 'http://localhost:4200/api/menuSuggestion/stream';
+
       // Use fetch API for streaming instead of streamFlow
-      const response = await fetch('http://localhost:4200/api/menuSuggestion/stream', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
