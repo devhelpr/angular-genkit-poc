@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MenuSuggestionService } from './menu-suggestion.service';
 
 @Component({
   selector: 'app-root',
@@ -8,8 +9,10 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './app.scss',
 })
 export class App {
+  private menuSuggestionService = inject(MenuSuggestionService);
+
   menuInput = '';
-  selectedModel = 'gemini'; // 'gemini' or 'ollama'
+  selectedModel: 'gemini' | 'ollama' = 'gemini';
   generatedMenuItem = signal('');
   streamedText = signal('');
   isGenerating = signal(false);
@@ -30,24 +33,9 @@ export class App {
     try {
       console.log('Generating menu item for theme:', theme, 'with model:', this.selectedModel);
 
-      const endpoint =
-        this.selectedModel === 'ollama' ? '/api/menuSuggestion/ollama' : '/api/menuSuggestion';
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ theme }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await this.menuSuggestionService.generateMenuItem(theme, this.selectedModel);
       console.log('Generated result:', result);
-      this.generatedMenuItem.set(result.menuItem || '');
+      this.generatedMenuItem.set(result);
     } catch (error) {
       console.error('Error generating menu item:', error);
       this.generatedMenuItem.set('Error occurred. Please try again.');
@@ -69,38 +57,9 @@ export class App {
     this.isStreaming.set(true);
 
     try {
-      const endpoint =
-        this.selectedModel === 'ollama'
-          ? '/api/menuSuggestion/stream/ollama'
-          : '/api/menuSuggestion/stream';
-
-      // Use fetch API for streaming instead of streamFlow
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ theme }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No reader available');
-      }
-
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
+      await this.menuSuggestionService.streamMenuItem(theme, this.selectedModel, (chunk) => {
         this.streamedText.update((prev) => prev + chunk);
-      }
+      });
     } catch (error) {
       console.error('Error streaming menu item:', error);
       this.streamedText.set('Error occurred while streaming. Please try again.');
