@@ -17,49 +17,49 @@ A proof-of-concept application demonstrating the integration of [Angular](https:
 
 ```mermaid
 graph TB
-    subgraph "Frontend (Angular)"
+    subgraph Frontend["Frontend (Angular)"]
         A[App Component] --> B[Menu Suggestion Service]
         A --> C[Theme Service]
         A --> D[Theme Modal Component]
         C --> D
     end
     
-    subgraph "Backend (Express + Angular SSR)"
+    subgraph Backend["Backend (Express + Angular SSR)"]
         E[Express Server] --> F[API Routes]
-        F --> G[/api/menuSuggestion]
-        F --> H[/api/menuSuggestion/ollama]
-        F --> I[/api/menuSuggestion/stream]
-        F --> J[/api/menuSuggestion/stream/ollama]
+        F --> G["POST /api/menuSuggestion"]
+        F --> H["POST /api/menuSuggestion/ollama"]
+        F --> I["POST /api/menuSuggestion/stream"]
+        F --> J["POST /api/menuSuggestion/stream/ollama"]
     end
     
-    subgraph "AI Layer (Genkit)"
+    subgraph AILayer["AI Layer (Genkit)"]
         K[menuSuggestionFlow] --> L[Google Gemini 2.5 Flash]
         M[menuSuggestionFlowOllama] --> N[Ollama Granite4 Tiny-H]
         O[menuSuggestionStreamFlow] --> L
         P[menuSuggestionStreamFlowOllama] --> N
     end
     
-    subgraph "User Interface"
+    subgraph UI["User Interface"]
         Q[User Input] --> A
         A --> R[Generated Results]
         A --> S[Streamed Text]
-        C --> T[Theme Persistence<br/>localStorage]
+        C --> T["Theme Persistence (localStorage)"]
     end
     
     B -->|HTTP POST| G
     B -->|HTTP POST| H
-    B -->|HTTP POST<br/>Streaming| I
-    B -->|HTTP POST<br/>Streaming| J
+    B -->|HTTP POST Streaming| I
+    B -->|HTTP POST Streaming| J
     
     G --> K
     H --> M
     I --> O
     J --> P
     
-    K --> |Response| B
-    M --> |Response| B
-    O --> |Chunks| B
-    P --> |Chunks| B
+    K -->|Response| B
+    M -->|Response| B
+    O -->|Chunks| B
+    P -->|Chunks| B
     
     style A fill:#42a5f5
     style B fill:#66bb6a
