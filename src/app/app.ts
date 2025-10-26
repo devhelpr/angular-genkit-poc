@@ -31,9 +31,7 @@ export class App {
       console.log('Generating menu item for theme:', theme, 'with model:', this.selectedModel);
 
       const endpoint =
-        this.selectedModel === 'ollama'
-          ? 'http://localhost:4200/api/menuSuggestion/ollama'
-          : 'http://localhost:4200/api/menuSuggestion';
+        this.selectedModel === 'ollama' ? '/api/menuSuggestion/ollama' : '/api/menuSuggestion';
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -73,8 +71,8 @@ export class App {
     try {
       const endpoint =
         this.selectedModel === 'ollama'
-          ? 'http://localhost:4200/api/menuSuggestion/stream/ollama'
-          : 'http://localhost:4200/api/menuSuggestion/stream';
+          ? '/api/menuSuggestion/stream/ollama'
+          : '/api/menuSuggestion/stream';
 
       // Use fetch API for streaming instead of streamFlow
       const response = await fetch(endpoint, {
