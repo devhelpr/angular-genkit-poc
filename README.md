@@ -1,6 +1,25 @@
 # AngularGenkit
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2 and integrates with [Google AI Genkit](https://firebase.google.com/docs/genkit) for AI-powered features.
+
+## Setup
+
+### Prerequisites
+
+1. **Google AI API Key**: Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+
+### Environment Configuration
+
+1. Copy the `.env` file and update it with your API key:
+   ```bash
+   cp .env .env.local
+   ```
+
+2. Edit `.env.local` and replace `your_api_key_here` with your actual Google AI API key:
+   ```
+   GOOGLE_GENAI_API_KEY=your_actual_api_key_here
+   GENKIT_ENV=dev
+   ```
 
 ## Development server
 
@@ -11,6 +30,17 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## API Endpoints
+
+The application provides the following API endpoints:
+
+- `POST /api/menuSuggestion` - Generate menu suggestions based on a theme
+  ```json
+  {
+    "theme": "Italian"
+  }
+  ```
 
 ## Code scaffolding
 
